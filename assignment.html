@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     
     <title>Assignment</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" integrity="sha512-usVBAd66/NpVNfBge19gws2j6JZinnca12rAe2l+d+QkLU9fiG02O1X8Q6hepIpr/EYKZvKx/I9WsnujJuOmBA==" crossorigin="anonymous">
     <style>
       .card {
         max-width: 300px;
@@ -23,11 +23,9 @@
     	font-size: calc(1.375rem + 1.5vw);
     	text-align: left;
 	}
-	.text-end {
-   	 text-align: right!important;
-    	padding-bottom: 10px;
-    	padding-right: 10px;
- 	}
+	.navbar-light .navbar-nav .nav-link {
+    		color: #e9ecef!important;
+	}
     </style>
   </head>
   <body>
@@ -68,46 +66,63 @@
       <div class="row" id="card-container">
       </div>
     </main>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js" integrity="sha512-STof4xm1wgkfm7heWqFJVn58Hm3EtS31XFaagaa8VMReCXAkQnJZ+jEy8PCC/iT18dFy95WcExNHFTqLyp72eQ==" crossorigin="anonymous"></script>
+    
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha512-72WD92hLs7T5FAXn3vkNZflWG6pglUDDpm87TeQmfSg8KnrymL2G30R7as4FmTwhgu9H7eSzDCX3mjitSecKnw==" crossorigin="anonymous"></script>
     <script>
-      $.ajax({
-        url: 'https://jsonplaceholder.typicode.com/users',
-        method: 'GET',
-        success: function(data) {
-          var cardContainer = $('#card-container');
-          var users = data;
-          var totalCount = users.length;
-          $('#total-count').text('Showing ' + totalCount + ' Records');
-          for (var i = 0; i < users.length; i++) {
-            var user = users[i];
-            var card = '<div class="col-md-4 mb-4">' +
-                         '<div class="card">' +
-                           '<div class="card-body">' +
-                             '<h5 class="card-title">' + user.name + '</h5>' +
-                             '<p class="card-text">' + user.address.street + ', ' + user.address.suite + ', ' + user.address.city + ', ' + user.address.zipcode +                              '</p>' +
-                             
-                           '</div>' +
-					'<div class="text-end">'+
-					'<button class="btn btn-danger delete-card" data-card-id="' + i + '">Delete</button>' +
-					'</div>'+
-                         '</div>' +
-                       '</div>';
-            cardContainer.append(card);
-          }
-          $('.delete-card').click(function() {
+	const apiUrl = 'https://jsonplaceholder.typicode.com/users';
+	const cardContainer = $('#card-container');
+	const totalRecords = $('#total-count');
+	let totalCount =0;
+   fetch(apiUrl)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network error');
+      }
+
+      return response.json();
+    }).then(users => {
+
+      renderCards(users);
+    })
+    .catch(error => {
+      console.error('There was a problem fetching the data: ', error);
+    });
+ function renderCards(users) {
+	totalCount = users.length;
+
+    totalRecords.text(`Showing ${users.length} Records`);
+    cardContainer.empty();
+
+    let cards = '';
+    users.forEach(user => {
+	const card = `<div class="col-md-4 mb-4">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">${user.name}</h5>
+              <p class="card-text">${user.address.street}, ${user.address.suite}, ${user.address.city}, ${user.address.zipcode}</p>
+		<div class="text-end">
+              <button class="btn btn-danger delete-card" data-card-id="${user.id}">Delete</button>
+		</div>
+            </div>
+          </div>
+        </div> `;
+
+ 	cards += card;
+    });
+
+	cardContainer.append(cards);
+ 	$('.delete-card').click(function() {
             var cardId = $(this).data('card-id');
             if (confirm('Are you sure you want to delete this card?')) {
               $(this).closest('.col-md-4').remove();
               totalCount--;
-              $('#total-count').text('Showing ' + totalCount + ' Records');
+              totalRecords.text('Showing ' + totalCount + ' Records');
             }
           });
-        },
-        error: function() {
-          alert('Failed to load data');
-        }
-      });
+}
+
+     
     </script>
   </body>
 </html>
